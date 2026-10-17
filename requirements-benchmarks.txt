@@ -1,0 +1,20 @@
+# Optional benchmark-only dependencies for CURA.
+#
+# These power MOSES metrics (validity / uniqueness / IntDiv1 / FCD) and
+# Frechet ChemNet Distance in scripts/run_benchmarks.py. They are NOT
+# required by the runtime API or by the unified CuraPipeline -- both
+# benchmarks/moses_metrics.py and scripts/run_benchmarks.py degrade
+# gracefully when these packages are missing.
+#
+# Install with:
+#   pip install -r requirements-benchmarks.txt
+#
+# Notes:
+# - molsets ships MOSES under the importable name `moses`.
+# - fcd_torch is the reference implementation of FCD; pulls torch.
+# - chembl_webresource_client makes scripts/download_chembl_egfr.py
+#   slightly more robust than the bare REST fallback. Optional.
+
+molsets
+fcd_torch
+chembl_webresource_client

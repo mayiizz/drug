@@ -1,0 +1,129 @@
+# CURA AI Drug Discovery Platform - Full Python stack
+# ----------------------------------------------------
+# Install:
+#   pip install -r requirements.txt
+#
+# NOTE: This file includes runtime + research-agent + benchmarking deps.
+# It does NOT install external executables (AutoDock Vina/OpenBabel/MGLTools).
+# It also does NOT install frontend (Node/Next.js) deps; see frontend/package.json.
+#
+# ----------------------------------------------------
+# MODEL STACK USED IN THIS PROJECT
+# ----------------------------------------------------
+# 1) Molecular generation prior / policy:
+#    - REINVENT-style SMILES LSTM (PyTorch)
+#    - Prior checkpoints: checkpoints/prior_best_validity.pt / prior_latest.pt
+#    - IMPORTANT: REINVENT here is an INTERNAL implementation under:
+#      models/generation/reinvent4/*.py  (not a pip package named "reinvent")
+#
+# 2) Embedding / semantic dedup:
+#    - HuggingFace model: seyonec/ChemBERTa-zinc-base-v1
+#
+# 3) Binding prefilter:
+#    - DeepPurpose DTI model (CNN_CNN_BindingDB)
+#
+# 4) Research agent LLM:
+#    - LangGraph + LangChain + Groq (ChatGroq)
+#    - Default model in code: llama-3.3-70b-versatile
+#
+# 5) Docking:
+#    - AutoDock Vina executable (external binary, not pip)
+#    - OpenBabel / MGLTools for ligand/receptor prep (external tools)
+#
+# 6) Frontend UI stack (separate, Node ecosystem):
+#    - Next.js 16, React 19, TypeScript 5, TailwindCSS 4, Framer Motion
+#    - Install via: npm install (inside frontend/)
+#
+# ----------------------------------------------------
+# API / SERVER
+# ----------------------------------------------------
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+python-multipart==0.0.20
+
+# ----------------------------------------------------
+# CORE SCIENTIFIC / DATA
+# ----------------------------------------------------
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+matplotlib==3.10.7
+requests==2.32.5
+httpx==0.28.1
+python-dotenv==1.0.1
+tqdm==4.67.3
+
+# ----------------------------------------------------
+# CHEMINFORMATICS
+# ----------------------------------------------------
+rdkit==2024.9.6
+pubchempy==1.0.4
+chembl_webresource_client==0.10.9
+
+# ----------------------------------------------------
+# DEEP LEARNING / GENERATION / EMBEDDING
+# ----------------------------------------------------
+torch==2.10.0
+transformers==5.8.0
+tokenizers==0.22.2
+sentence-transformers==5.4.1
+safetensors==0.7.0
+huggingface-hub==1.14.0
+
+# DeepPurpose (binding prefilter)
+DeepPurpose==0.1.5
+
+# ----------------------------------------------------
+# VECTOR SEARCH
+# ----------------------------------------------------
+faiss-cpu==1.12.0
+
+# ----------------------------------------------------
+# RESEARCH AGENT (LANGGRAPH / GROQ STACK)
+# ----------------------------------------------------
+langgraph==1.1.10
+langchain-core==1.3.3
+langchain-groq==1.1.2
+langsmith==0.7.13
+groq==0.37.1
+nltk==3.9.2
+
+# ----------------------------------------------------
+# NEO4J KNOWLEDGE GRAPH / GRAPHRAG
+# ----------------------------------------------------
+neo4j==5.28.1
+networkx==3.4.2
+pyvis==0.3.2
+
+
+# ----------------------------------------------------
+# BENCHMARK / RESEARCH METRICS
+# ----------------------------------------------------
+molsets==1.0
+fcd_torch==1.0.7
+
+# ----------------------------------------------------
+# OPTIONAL / COMPATIBILITY HELPERS
+# ----------------------------------------------------
+# If DeepPurpose install fails on your environment, install these manually:
+# deepchem
+# dgllife
+# dgl
+
+# ----------------------------------------------------
+# FRONTEND (NOT PIP; DOCUMENTATION ONLY)
+# ----------------------------------------------------
+# See frontend/package.json for exact versions:
+# - next
+# - react
+# - react-dom
+# - typescript
+# - tailwindcss
+# - eslint / eslint-config-next
+# - axios
+# - framer-motion
+# - lucide-react
+# - clsx
+# - tailwind-merge

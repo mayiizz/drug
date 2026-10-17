@@ -1,0 +1,65 @@
+# Global ignores
+node_modules/
+.next/
+dist/
+build/
+out/
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# IDE / tooling
+.qodo/
+cura-v2/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sensitivity
+.env
+.env.local
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Runtime / generated output
+result/
+results/
+runs/
+checkpoints/
+save_folder/
+generated_molecules.csv
+generated_molecules.sdf
+
+# Models & large data
+*.pt
+*.bin
+*.zip
+*.sdf
+*.npy
+*.ckpt
+# Keep Neo4j/demo seed tables; ignore bulky chembl binaries (covered by *.npy)
+data/*
+!data/*.csv
+!data/*.json
+
+# Temp / debug files
+out.txt
+tree_files.txt
+project_tree.txt
+dump_tree.py
+check_deps.py
+git_push_error.txt
+drug_knowledge_graph.html
+*.resolved
+frontend/eslint_out.txt
+frontend/npm_output.txt

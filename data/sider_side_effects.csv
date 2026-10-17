@@ -1,0 +1,166 @@
+drugname,pt
+aspirin,Nausea
+aspirin,Stomach pain
+aspirin,Heartburn
+aspirin,Bleeding
+caffeine,Insomnia
+caffeine,Palpitations
+caffeine,Anxiety
+ibuprofen,Nausea
+ibuprofen,Dizziness
+ibuprofen,Stomach pain
+naproxen,Stomach pain
+naproxen,Nausea
+celecoxib,Edema
+celecoxib,Nausea
+paracetamol,Nausea
+paracetamol,Rash
+erlotinib,Rash
+erlotinib,Diarrhea
+erlotinib,Fatigue
+gefitinib,Rash
+gefitinib,Diarrhea
+gefitinib,Dry skin
+osimertinib,Diarrhea
+osimertinib,Rash
+afatinib,Diarrhea
+afatinib,Rash
+dacomitinib,Diarrhea
+dacomitinib,Rash
+imatinib,Nausea
+imatinib,Edema
+imatinib,Muscle cramps
+dasatinib,Pleural effusion
+dasatinib,Nausea
+nilotinib,Rash
+nilotinib,Headache
+ponatinib,Hypertension
+ponatinib,Arterial thrombosis
+crizotinib,Vision disorder
+crizotinib,Nausea
+alectinib,Fatigue
+alectinib,Constipation
+ceritinib,Nausea
+ceritinib,Diarrhea
+vemurafenib,Rash
+vemurafenib,Arthralgia
+dabrafenib,Fever
+dabrafenib,Rash
+encorafenib,Nausea
+trametinib,Rash
+trametinib,Diarrhea
+palbociclib,Neutropenia
+palbociclib,Fatigue
+ribociclib,Neutropenia
+abemaciclib,Diarrhea
+ibrutinib,Diarrhea
+ibrutinib,Bleeding
+acalabrutinib,Headache
+zanubrutinib,Neutropenia
+ruxolitinib,Anemia
+ruxolitinib,Thrombocytopenia
+tofacitinib,Infection
+baricitinib,Infection
+sunitinib,Fatigue
+sunitinib,Hypertension
+sorafenib,Hand-foot syndrome
+sorafenib,Diarrhea
+pazopanib,Hypertension
+lenvatinib,Hypertension
+cabozantinib,Diarrhea
+bevacizumab,Hypertension
+bevacizumab,Bleeding
+cetuximab,Rash
+panitumumab,Rash
+metformin,Diarrhea
+metformin,Nausea
+metformin,Metallic taste
+sitagliptin,Headache
+empagliflozin,Urinary tract infection
+dapagliflozin,Urinary tract infection
+semaglutide,Nausea
+semaglutide,Vomiting
+liraglutide,Nausea
+atorvastatin,Myalgia
+atorvastatin,Headache
+rosuvastatin,Myalgia
+simvastatin,Myalgia
+losartan,Dizziness
+lisinopril,Cough
+amlodipine,Edema
+metoprolol,Fatigue
+carvedilol,Dizziness
+warfarin,Bleeding
+apixaban,Bleeding
+rivaroxaban,Bleeding
+dabigatran,Bleeding
+clopidogrel,Bleeding
+omeprazole,Headache
+pantoprazole,Diarrhea
+sertraline,Nausea
+sertraline,Insomnia
+fluoxetine,Nausea
+fluoxetine,Anxiety
+escitalopram,Nausea
+venlafaxine,Insomnia
+duloxetine,Nausea
+bupropion,Insomnia
+olanzapine,Weight gain
+risperidone,Weight gain
+aripiprazole,Akathisia
+quetiapine,Sedation
+morphine,Constipation
+morphine,Nausea
+fentanyl,Respiratory depression
+oxycodone,Constipation
+tramadol,Nausea
+naloxone,Withdrawal
+dexamethasone,Insomnia
+prednisone,Weight gain
+tacrolimus,Nephrotoxicity
+cyclosporine,Nephrotoxicity
+remdesivir,Nausea
+remdesivir,Elevated liver enzymes
+nirmatrelvir,Dysgeusia
+molnupiravir,Diarrhea
+sotorasib,Diarrhea
+sotorasib,Nausea
+adagrasib,Nausea
+venetoclax,Neutropenia
+venetoclax,Diarrhea
+olaparib,Nausea
+olaparib,Anemia
+rucaparib,Fatigue
+pembrolizumab,Fatigue
+pembrolizumab,Rash
+nivolumab,Fatigue
+ipilimumab,Colitis
+lenalidomide,Neutropenia
+bortezomib,Peripheral neuropathy
+carfilzomib,Fatigue
+tamoxifen,Hot flush
+anastrozole,Arthralgia
+enzalutamide,Fatigue
+docetaxel,Neutropenia
+paclitaxel,Neuropathy
+gemcitabine,Myelosuppression
+cisplatin,Nausea
+cisplatin,Nephrotoxicity
+rituximab,Infusion reaction
+methotrexate,Nausea
+methotrexate,Hepatotoxicity
+adalimumab,Injection site reaction
+infliximab,Infusion reaction
+montelukast,Headache
+salbutamol,Tremor
+amoxicillin,Diarrhea
+azithromycin,Nausea
+ciprofloxacin,Tendonitis
+fluconazole,Nausea
+hydroxychloroquine,Retinopathy
+donepezil,Nausea
+levodopa,Dyskinesia
+levetiracetam,Somnolence
+carbamazepine,Dizziness
+oseltamivir,Nausea
+acyclovir,Nausea

@@ -1,0 +1,190 @@
+drug,protein,disease
+Erlotinib,EGFR,Lung cancer
+Gefitinib,EGFR,Lung cancer
+Osimertinib,EGFR,Lung cancer
+Afatinib,EGFR,Lung cancer
+Dacomitinib,EGFR,Lung cancer
+Necitumumab,EGFR,Lung cancer
+Lapatinib,EGFR,Breast cancer
+Lapatinib,HER2,Breast cancer
+Trastuzumab,HER2,Breast cancer
+Pertuzumab,HER2,Breast cancer
+Tucatinib,HER2,Breast cancer
+Neratinib,HER2,Breast cancer
+Imatinib,BCR-ABL,Leukemia
+Dasatinib,BCR-ABL,Leukemia
+Nilotinib,BCR-ABL,Leukemia
+Bosutinib,BCR-ABL,Leukemia
+Ponatinib,BCR-ABL,Leukemia
+Crizotinib,ALK,Lung cancer
+Alectinib,ALK,Lung cancer
+Brigatinib,ALK,Lung cancer
+Lorlatinib,ALK,Lung cancer
+Ceritinib,ALK,Lung cancer
+Vemurafenib,BRAF,Melanoma
+Dabrafenib,BRAF,Melanoma
+Encorafenib,BRAF,Melanoma
+Trametinib,MEK1,Melanoma
+Cobimetinib,MEK1,Melanoma
+Binimetinib,MEK1,Melanoma
+Palbociclib,CDK4,Breast cancer
+Ribociclib,CDK4,Breast cancer
+Abemaciclib,CDK6,Breast cancer
+Ibrutinib,BTK,Lymphoma
+Acalabrutinib,BTK,Lymphoma
+Zanubrutinib,BTK,Lymphoma
+Ruxolitinib,JAK2,Myelofibrosis
+Fedratinib,JAK2,Myelofibrosis
+Tofacitinib,JAK1,Rheumatoid arthritis
+Baricitinib,JAK1,Rheumatoid arthritis
+Upadacitinib,JAK1,Rheumatoid arthritis
+Sunitinib,VEGFR2,Kidney cancer
+Sorafenib,VEGFR2,Liver cancer
+Pazopanib,VEGFR2,Kidney cancer
+Axitinib,VEGFR2,Kidney cancer
+Lenvatinib,VEGFR2,Liver cancer
+Cabozantinib,VEGFR2,Kidney cancer
+Bevacizumab,VEGF,Colorectal cancer
+Ramucirumab,VEGFR2,Colorectal cancer
+Cetuximab,EGFR,Colorectal cancer
+Panitumumab,EGFR,Colorectal cancer
+Aspirin,COX-1,Pain
+Aspirin,COX-2,Inflammation
+Ibuprofen,COX-1,Pain
+Ibuprofen,COX-2,Inflammation
+Naproxen,COX-2,Inflammation
+Celecoxib,COX-2,Inflammation
+Diclofenac,COX-2,Pain
+Paracetamol,COX-2,Pain
+Metformin,AMPK,Type 2 diabetes
+Sitagliptin,DPP4,Type 2 diabetes
+Linagliptin,DPP4,Type 2 diabetes
+Empagliflozin,SGLT2,Type 2 diabetes
+Dapagliflozin,SGLT2,Type 2 diabetes
+Canagliflozin,SGLT2,Type 2 diabetes
+Semaglutide,GLP1R,Type 2 diabetes
+Liraglutide,GLP1R,Type 2 diabetes
+Atorvastatin,HMGCR,Hyperlipidemia
+Rosuvastatin,HMGCR,Hyperlipidemia
+Simvastatin,HMGCR,Hyperlipidemia
+Pravastatin,HMGCR,Hyperlipidemia
+Losartan,AGTR1,Hypertension
+Valsartan,AGTR1,Hypertension
+Lisinopril,ACE,Hypertension
+Enalapril,ACE,Hypertension
+Amlodipine,CACNA1C,Hypertension
+Nifedipine,CACNA1C,Hypertension
+Metoprolol,ADRB1,Hypertension
+Carvedilol,ADRB1,Heart failure
+Warfarin,VKORC1,Thrombosis
+Apixaban,F10,Thrombosis
+Rivaroxaban,F10,Thrombosis
+Edoxaban,F10,Thrombosis
+Dabigatran,F2,Thrombosis
+Clopidogrel,P2Y12,Thrombosis
+Omeprazole,ATP4A,GERD
+Pantoprazole,ATP4A,GERD
+Esomeprazole,ATP4A,GERD
+Lansoprazole,ATP4A,GERD
+Caffeine,ADORA2A,Fatigue
+Sertraline,SLC6A4,Depression
+Fluoxetine,SLC6A4,Depression
+Escitalopram,SLC6A4,Depression
+Venlafaxine,SLC6A4,Depression
+Duloxetine,SLC6A4,Depression
+Bupropion,SLC6A2,Depression
+Olanzapine,DRD2,Schizophrenia
+Risperidone,DRD2,Schizophrenia
+Aripiprazole,DRD2,Schizophrenia
+Quetiapine,DRD2,Schizophrenia
+Morphine,OPRM1,Pain
+Fentanyl,OPRM1,Pain
+Oxycodone,OPRM1,Pain
+Tramadol,OPRM1,Pain
+Naloxone,OPRM1,Opioid overdose
+Naltrexone,OPRM1,Opioid overdose
+Dexamethasone,NR3C1,Inflammation
+Prednisone,NR3C1,Inflammation
+Hydrocortisone,NR3C1,Inflammation
+Tacrolimus,FKBP1A,Transplant rejection
+Cyclosporine,PPIA,Transplant rejection
+Mycophenolate,IMPDH,Transplant rejection
+Remdesivir,RdRp,COVID-19
+Nirmatrelvir,Mpro,COVID-19
+Paxlovid,Mpro,COVID-19
+Molnupiravir,RdRp,COVID-19
+Sotorasib,KRAS,Lung cancer
+Adagrasib,KRAS,Lung cancer
+Capivasertib,AKT1,Breast cancer
+Alpelisib,PIK3CA,Breast cancer
+Everolimus,MTOR,Kidney cancer
+Temsirolimus,MTOR,Kidney cancer
+Sirolimus,MTOR,Transplant rejection
+Venetoclax,BCL2,Leukemia
+Ivosidenib,IDH1,Leukemia
+Enasidenib,IDH2,Leukemia
+Olaparib,PARP1,Breast cancer
+Rucaparib,PARP1,Ovarian cancer
+Niraparib,PARP1,Ovarian cancer
+Pembrolizumab,PD1,Melanoma
+Nivolumab,PD1,Lung cancer
+Atezolizumab,PDL1,Lung cancer
+Ipilimumab,CTLA4,Melanoma
+Lenalidomide,CRBN,Multiple myeloma
+Pomalidomide,CRBN,Multiple myeloma
+Bortezomib,PSMB5,Multiple myeloma
+Carfilzomib,PSMB5,Multiple myeloma
+Imatinib,KIT,Gastrointestinal stromal tumor
+Sunitinib,KIT,Gastrointestinal stromal tumor
+Regorafenib,VEGFR2,Colorectal cancer
+Oseltamivir,Neuraminidase,Influenza
+Zanamivir,Neuraminidase,Influenza
+Acyclovir,HSV_TK,Herpes
+Valacyclovir,HSV_TK,Herpes
+Levetiracetam,SV2A,Epilepsy
+Lamotrigine,SCN1A,Epilepsy
+Carbamazepine,SCN1A,Epilepsy
+Donepezil,ACHE,Alzheimer disease
+Memantine,GRIN1,Alzheimer disease
+Levodopa,DDC,Parkinson disease
+Rasagiline,MAOB,Parkinson disease
+Selegiline,MAOB,Parkinson disease
+Methotrexate,DHFR,Rheumatoid arthritis
+Adalimumab,TNF,Rheumatoid arthritis
+Etanercept,TNF,Rheumatoid arthritis
+Infliximab,TNF,Crohn disease
+Ustekinumab,IL12B,Psoriasis
+Secukinumab,IL17A,Psoriasis
+Dupilumab,IL4R,Asthma
+Omalizumab,IGE,Asthma
+Montelukast,CYSLTR1,Asthma
+Salbutamol,ADRB2,Asthma
+Formoterol,ADRB2,Asthma
+Tiotropium,CHRM3,COPD
+Vilanterol,ADRB2,COPD
+Amoxicillin,PBP,Bacterial infection
+Azithromycin,RPL,Bacterial infection
+Ciprofloxacin,GyrA,Bacterial infection
+Doxycycline,RPS,Bacterial infection
+Vancomycin,Peptidoglycan,Bacterial infection
+Fluconazole,ERG11,Fungal infection
+Ivermectin,GluCl,Parasitic infection
+Hydroxychloroquine,TLR9,Malaria
+Chloroquine,Hemozoin,Malaria
+Tamoxifen,ESR1,Breast cancer
+Fulvestrant,ESR1,Breast cancer
+Anastrozole,CYP19A1,Breast cancer
+Letrozole,CYP19A1,Breast cancer
+Enzalutamide,AR,Prostate cancer
+Abiraterone,CYP17A1,Prostate cancer
+Docetaxel,TUBB,Breast cancer
+Paclitaxel,TUBB,Lung cancer
+Gemcitabine,RRM1,Pancreatic cancer
+Capecitabine,TYMS,Colorectal cancer
+5-Fluorouracil,TYMS,Colorectal cancer
+Cisplatin,DNA,Lung cancer
+Carboplatin,DNA,Ovarian cancer
+Oxaliplatin,DNA,Colorectal cancer
+Rituximab,CD20,Lymphoma
+Obinutuzumab,CD20,Lymphoma
+Daratumumab,CD38,Multiple myeloma

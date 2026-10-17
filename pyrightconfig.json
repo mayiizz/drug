@@ -1,0 +1,7 @@
+{
+  "venvPath": "C:/Users/v/miniconda3/envs",
+  "venv": "cura",
+  "reportPrivateImportUsage": "none",
+  "include": ["."],
+  "exclude": ["**/node_modules", "**/__pycache__", "lib/p2rank"]
+}
