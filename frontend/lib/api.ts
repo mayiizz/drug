@@ -149,16 +149,55 @@ export const fetchNetwork = async (drug?: string, disease?: string) => {
     return response.data;
 };
 
+export interface GraphPaper {
+    pmid: string;
+    title?: string;
+    url?: string;
+    year?: number;
+}
+
 export interface GraphRAGResponse {
     answer: string;
     paths: string[];
     entities: string[];
     intent?: string;
     params?: Record<string, unknown>;
+    papers?: GraphPaper[];
+    authors?: string[];
+    evidence_status?: "ok" | "none" | "grounded" | "paths_only" | "error" | string;
+    warning?: string;
 }
 
 export const askGraphRAG = async (query: string): Promise<GraphRAGResponse> => {
     const response = await api.post('/graphrag', { query });
+    return response.data;
+};
+
+export interface GraphSearchRequest {
+    drug?: string;
+    disease?: string;
+    protein?: string;
+    side_effect?: string;
+    intent?: string;
+}
+
+export interface GraphSearchResponse {
+    intent: string;
+    params: Record<string, unknown>;
+    records: Record<string, unknown>[];
+    paths: string[];
+    entities: string[];
+    papers?: GraphPaper[];
+    authors?: string[];
+    evidence_status?: string;
+    warning?: string;
+}
+
+/** Structured Neo4j retrieval without LLM synthesis. */
+export const searchGraph = async (
+    body: GraphSearchRequest
+): Promise<GraphSearchResponse> => {
+    const response = await api.post('/graph/search', body);
     return response.data;
 };
 

@@ -15,6 +15,8 @@ This document is the in-depth conceptual guide to CURA: what the product does, h
 7. [Dependencies and degraded modes](#7-dependencies-and-degraded-modes)
 8. [Glossary](#8-glossary)
 9. [Summary](#9-summary)
+10. [Hackathon demo — multi-hop GraphRAG + research knowledge graph](#10-hackathon-demo--multi-hop-graphrag--research-knowledge-graph)
+11. [Frontend demo script — inputs for every page](#11-frontend-demo-script--inputs-for-every-page)
 
 ---
 
@@ -183,13 +185,14 @@ Landing overview of tools and discovery entry points. Status indicators are larg
 
 **Inputs:**
 
-- Optional drug name and/or disease name → interactive network.
-- Free-text question → GraphRAG.
+- Optional drug name and/or disease name → interactive network (defaults: Erlotinib / Lung cancer).
+- Free-text question or suggested chips → GraphRAG.
+- Optional **Evidence only** / `/graph/search` catalog browse without LLM.
 
 **APIs:**
 
 - `POST /network` → HTML graph visualization.
-- `POST /graphrag` → natural-language answer + evidence paths.
+- `POST /graphrag` → natural-language answer + evidence paths (+ papers / authors when present).
 - (Backend also exposes `POST /graph/search` for structured retrieval without an LLM.)
 
 **What happens (Network):**
@@ -200,9 +203,18 @@ Landing overview of tools and discovery entry points. Status indicators are larg
 
 If Neo4j is down or unconfigured, Network can rebuild a simpler graph from `drug_protein_disease.csv`.
 
-**What happens (GraphRAG):** see [Section 5.6](#56-how-graphrag-uses-neo4j-step-by-step).
+**What happens (GraphRAG):** see [Section 5.7](#57-how-graphrag-uses-neo4j-step-by-step).
 
-This page is the **primary Neo4j surface** in the UI.
+Two compositional intents matter for demos:
+
+| Intent | Trigger (examples) | Evidence shape |
+|--------|--------------------|----------------|
+| `research_discovery` | “approaches”, “limitations”, “papers discuss” + protein/concept (e.g. EGFR) | `Paper -PROPOSES-> Method -HAS_LIMITATION-> …`, authors, RELATED_TO |
+| `multi_hop_research` | EGFR + disease/side-effect / “and what…” cues | `BINDS` / `TREATS` / `HAS_SIDE_EFFECT` / `SIMILAR_TO` |
+
+Papers use **real PubMed PMIDs**; edges (`DISCUSSES`, `PROPOSES`, `RELATED_TO`, …) are **curated for the demo**, not clinical SUPPORTS/CONTRADICTS.
+
+This page is the **primary Neo4j surface** in the UI. For open PubMed surveys use **Research Agent** (`/research`).
 
 ### 3.6 Protein Target Drug Generation / De Novo (`/protein`)
 
@@ -405,11 +417,13 @@ print('connected:', verify_connectivity())
 | `data/sider_smiles.json` | Attaches SMILES strings onto Drug nodes when names match |
 | Curated similar pairs in the seed script | Explicit `SIMILAR_TO` edges with scores |
 | RDKit Morgan/Tanimoto over drugs that have SMILES | Extra `SIMILAR_TO` edges (threshold ≈ 0.35, capped neighbors per drug) |
+| Curated `CURATED_PAPERS` / `RESEARCH_METHODS` in seed script | `Paper`, `Author`, `Concept`, `Method`, `Limitation` + research edges |
+| `data/research_notes/*.md` | `Document` nodes with `EXTRACTS_TO` → Concept/Method |
 
 **Seeding semantics:**
 
 - Uses `MERGE` so re-runs do not duplicate Erlotinib.  
-- Uniqueness constraints on entity `name` fields.  
+- Uniqueness constraints on entity `name` / `pmid` / `Document.id` fields.  
 - Demo-scale by design: expand the CSVs and re-seed to grow the graph.
 
 **After a successful seed**, typical counts are on the order of hundreds of nodes and relationships (drugs, proteins, diseases, side effects, plus edges). Exact numbers change as you expand the CSVs.
@@ -423,6 +437,15 @@ print('connected:', verify_connectivity())
      ├─[:TREATS]->(Disease)          treatment / indication context
      ├─[:HAS_SIDE_EFFECT]->(SideEffect)
      └─[:SIMILAR_TO {score}]->(Drug)
+
+  Research subgraph (additive, curated oncology demo):
+  (Paper)-[:AUTHORED_BY]->(Author)
+  (Paper)-[:DISCUSSES]->(Concept|Drug|Protein|Disease|…)
+  (Paper)-[:PROPOSES]->(Method)-[:HAS_LIMITATION]->(Limitation)
+  (Method)-[:TARGETS]->(Protein)
+  (Limitation)-[:MANIFESTS_AS]->(SideEffect)   # when curated
+  (Paper)-[:RELATED_TO]->(Paper)
+  (Document)-[:EXTRACTS_TO]->(Concept|Method)
 ```
 
 **Node types**
@@ -433,6 +456,12 @@ print('connected:', verify_connectivity())
 | Protein | Molecular target | `name` |
 | Disease | Indication / disease context | `name` |
 | SideEffect | Adverse effect term | `name` |
+| Paper | Curated PubMed paper | `pmid`, `title`, `url`, `year` |
+| Author | Paper author (demo) | `name` |
+| Concept | Research concept | `name` |
+| Method | Therapeutic / experimental approach | `name` |
+| Limitation | Known limitation of a method | `name` |
+| Document | Markdown research note | `id`, `title`, `path`, `body` |
 
 **Relationship types**
 
@@ -443,6 +472,14 @@ print('connected:', verify_connectivity())
 | `TREATS` | Drug → Disease | Drug used in that disease context |
 | `HAS_SIDE_EFFECT` | Drug → SideEffect | Catalogued adverse effect |
 | `SIMILAR_TO` | Drug ↔ Drug | Similarity with a numeric `score` |
+| `AUTHORED_BY` | Paper → Author | Curated authorship |
+| `DISCUSSES` | Paper → entity/concept | Curated discussion link (not SUPPORTS) |
+| `PROPOSES` | Paper → Method | Paper proposes / studies a method |
+| `HAS_LIMITATION` | Method → Limitation | Curated limitation |
+| `TARGETS` | Method → Protein | Method targets protein (bridge) |
+| `MANIFESTS_AS` | Limitation → SideEffect | Optional bridge when curated |
+| `RELATED_TO` | Paper → Paper | Curated related-paper link |
+| `EXTRACTS_TO` | Document → Concept/Method | Note extracts to research entity |
 
 ### 5.6 How the Drug Network page uses Neo4j
 
@@ -475,7 +512,7 @@ User question
 
 #### Step 1 — Entity resolution
 
-On first use (and periodically thereafter), CURA loads all Drug / Disease / Protein / SideEffect names from Neo4j into a short-lived cache. The question text is scanned with **longest substring / case-insensitive** matching so any seeded entity can be asked about — not only a hardcoded demo list.
+On first use (and periodically thereafter), CURA loads Drug / Disease / Protein / SideEffect names plus research-subgraph labels (Concept / Method / Limitation / Author) from Neo4j into a short-lived cache. The question text is scanned with **longest substring / case-insensitive** matching so any seeded entity can be asked about — not only a hardcoded demo list.
 
 #### Step 2 — Intent routing
 
@@ -483,6 +520,8 @@ Keywords + which entities were found select a query template:
 
 | Intent | Typical question | What Cypher focuses on |
 |--------|------------------|------------------------|
+| `research_discovery` | “Which approaches target EGFR, what limitations…?” | Method→Limitation→Paper→Author→RELATED_TO (+ TARGETS protein) |
+| `multi_hop_research` | “Which drugs target EGFR … side effects…?” | Drug neighborhood around a protein (bind/treat/ADR/similar/papers) |
 | `drug_neighborhood` | “Tell me about Erlotinib” | Bindings, treatments, side effects, similar drugs |
 | `treats_disease` | “Which drugs treat lung cancer?” | `TREATS` into that disease (+ binders) |
 | `disease_neighborhood` | “What is connected to melanoma?” | Treating drugs, proteins, binders |
@@ -491,8 +530,11 @@ Keywords + which entities were found select a query template:
 | `similar_drugs` | “Drugs similar to Gefitinib” | `SIMILAR_TO` ordered by score |
 | `side_effects` | “Side effects of Metformin” | Outgoing `HAS_SIDE_EFFECT` |
 | `drugs_by_side_effect` | “Which drugs cause nausea?” | Reverse lookup from SideEffect |
+| `papers_for_entity` | “What papers discuss EGFR?” | Curated `Paper -DISCUSSES->` entity |
 | `list_drugs` | “List drugs in the graph” | Catalog with light disease/target context |
 | `overview` | General graph sample | Broad sample of bind/treat paths |
+
+Track-shaped cues (`approaches`, `limitations`, `papers discuss`, …) route to `research_discovery` **before** generic paper / multi-hop templates. Missing required entities return `evidence_status: none` and skip the LLM (no silent Erlotinib defaults).
 
 #### Step 3 — Path materialization
 
@@ -502,6 +544,8 @@ Records become readable evidence lines, for example:
 - `Erlotinib -TREATS-> Lung cancer`
 - `Erlotinib -HAS_SIDE_EFFECT-> Rash`
 - `Erlotinib -SIMILAR_TO(0.72)-> Gefitinib`
+- `Paper:15118073 -PROPOSES-> EGFR TKI therapy -HAS_LIMITATION-> Skin toxicity / rash`
+- `Paper:15118073 -RELATED_TO-> Paper:16014882`
 
 These paths are the **only** factual context the LLM is allowed to use.
 
@@ -522,7 +566,10 @@ If `GROQ_API_KEY` is missing, CURA returns a deterministic bullet list of paths 
 - `answer` — prose (or path list fallback)
 - `paths` — evidence strings
 - `entities` — sorted entity names touched
+- `papers` — curated PubMed metadata (when retrieved)
+- `authors` — author names from `AUTHORED_BY` (research discovery; additive)
 - `intent` / `params` — which template ran and with which bindings
+- `evidence_status` — `grounded` / `paths_only` / `none` / …
 
 ### 5.8 Structured graph search (`POST /graph/search`)
 
@@ -612,16 +659,23 @@ Out of scope for the current design: live pulls from ChEMBL/DrugBank APIs, and a
 
 ### Journey B — Explore biology of Erlotinib (Neo4j)
 
-1. Open **Drug Network**, enter drug `Erlotinib` (and optionally a disease).  
+1. Open **Drug Network**, enter drug `Erlotinib` (and optionally disease `Lung cancer`).  
 2. Neo4j returns the binding / treatment / side-effect / similarity neighborhood as an interactive graph.  
 3. Ask GraphRAG: “What proteins does Erlotinib bind, and what side effects are linked?”  
-4. Intent `drug_neighborhood` runs; paths are retrieved; Groq writes a short grounded answer.  
+4. Intent `drug_neighborhood` (or multi-hop when compositional) runs; paths are retrieved; Groq writes a short grounded answer.  
 5. Optionally call `/graph/search` with `{ "drug": "Erlotinib", "intent": "similar_drugs" }` for raw similar-drug records.
+
+### Journey B2 — Research knowledge discovery (EGFR approaches)
+
+1. On **Drug Network**, click the first suggested chip (or paste the approaches/limitations question).  
+2. Intent `research_discovery` retrieves Method → Limitation → Paper → Author → RELATED_TO paths bridged via `Method -TARGETS-> EGFR`.  
+3. UI shows authors, research-style paths, and PubMed links (real PMIDs; curated edges).  
+4. Contrast with the classic multi-hop chip (`multi_hop_research`) for drug/side-effect neighborhood.
 
 ### Journey C — Literature + graph (complementary)
 
 1. **Research Agent** — PubMed-backed narrative on a target or molecule (broad, noisy, literature-grounded).  
-2. **GraphRAG** — structured facts that exist in the seeded Neo4j demo graph (narrow, explicit, edge-grounded).  
+2. **GraphRAG** — structured facts that exist in the seeded Neo4j demo graph (narrow, explicit, edge-grounded), including the research subgraph.  
 3. Do not expect them to always agree: the graph is a curated demo subset; the literature is wider.
 
 ### Journey D — Analyze a known SMILES, then ask the graph
@@ -675,8 +729,230 @@ CURA is designed to keep working when optional pieces are missing, with reduced 
 
 - **CURA’s product surface** spans analysis, similarity, side-effect prediction, molecule generation (protein- and seed-oriented), literature research, knowledge-graph exploration, AlphaFold 3D viewing, and exports.  
 - **The generation pipeline** is a multi-stage funnel: protein structure → pocket → REINVENT sampling → chemical/3D/drug-likeness filters → binding & ADMET/Tox (± docking) → multi-objective ranking.  
-- **Neo4j** stores a compact biomedical graph (drugs, proteins, diseases, side effects, similarity) used for **interactive network visualization**, **GraphRAG Q&A**, and **structured `/graph/search`**. It is not the engine behind fingerprint Similar Drugs, Tox21 screening, PubMed research, or molecule generation.  
+- **Neo4j** stores a compact biomedical + research graph (drugs, proteins, diseases, side effects, similarity, plus Paper / Author / Concept / Method / Limitation / Document) used for **interactive network visualization**, **GraphRAG Q&A**, and **structured `/graph/search`**. It is not the engine behind fingerprint Similar Drugs, Tox21 screening, PubMed research, or molecule generation.  
 - **Two structure stories** coexist by design: AlphaFold for public 3D viewing, and PDB/ColabFold/ESMFold tiering for pocket-aware generation and docking.  
-- **Two similarity / side-effect stories** also coexist: flat-file fingerprint tools for new SMILES, versus Neo4j edges for named entities in the seeded demo graph.
+- **Two similarity / side-effect stories** also coexist: flat-file fingerprint tools for new SMILES, versus Neo4j edges for named entities in the seeded demo graph.  
+- **Two literature stories** coexist: GraphRAG over the seeded research subgraph vs Research Agent PubMed document RAG.
 
-For setup commands and environment variables, see the project `README.md` and `.env.example`. For live API contracts, open the FastAPI interactive docs when the backend is running (for example `http://127.0.0.1:8002/docs`).
+For setup commands and environment variables, see the project `README.md` and `.env.example`. For live API contracts, open the FastAPI interactive docs when the backend is running (for example `http://127.0.0.1:8002/docs`). For a full click-through with copy-paste inputs, see [Section 11](#11-frontend-demo-script--inputs-for-every-page).
+
+---
+
+## 10. Hackathon demo — multi-hop GraphRAG + research knowledge graph
+
+### What was hardened
+
+- Compositional intent `multi_hop_research` (protein → drugs → diseases → side effects → similar → curated papers)
+- Research-track intent `research_discovery` (Method → Limitation → Paper → Author → RELATED_TO, bridged via Method-TARGETS-Protein)
+- No silent Erlotinib / Lung cancer defaults when entities are missing
+- Empty evidence skips the LLM (`evidence_status: none`)
+- Numbered path context + stronger grounding prompt
+- Curated `Paper` / `Author` / `Concept` / `Method` / `Limitation` / `Document` (real PubMed IDs; not SUPPORTS/CONTRADICTS)
+- Network UI: research banner, suggested questions, authors, intent/params badges, paper links
+- Automated tests under `tests/` (mocked Neo4j/Groq)
+
+### Configure
+
+```bash
+cp .env.example .env
+# Set NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, GROQ_API_KEY
+python scripts/seed_neo4j.py
+```
+
+### Start
+
+```bash
+# Backend (example port 8002)
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8002
+
+# Frontend
+cd frontend && NEXT_PUBLIC_API_BASE=http://127.0.0.1:8002 npm run dev
+```
+
+### 60-second demo script (for judges)
+
+1. Open **Drug Network** (`http://localhost:3000/network`) — note the curated research-graph banner.
+2. Click the first suggested chip (or paste):
+
+   > Which approaches target EGFR, what limitations are recorded, and which papers discuss related drugs?
+
+3. Confirm badges show `intent=research_discovery` and `evidence=grounded` (or `paths_only` without Groq).
+4. Point to paths shaped like `Paper -PROPOSES-> Method -HAS_LIMITATION-> Limitation`, authors list, and PubMed links.
+5. Optional second chip: drug multi-hop (`intent=multi_hop_research`) for side-effect neighborhood.
+6. Mention `/research` is separate PubMed document RAG for open surveys — not this seeded multi-hop graph.
+
+### Classic multi-hop question (drug neighborhood)
+
+> Which drugs in the available graph target EGFR, what disease relationships are recorded for those targets, and what side effects are associated with the relevant drugs?
+
+Expect `intent=multi_hop_research`, numbered `BINDS` / `TREATS` / `HAS_SIDE_EFFECT` paths.
+
+### Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v
+```
+
+### Known limitations
+
+- Graph is **seeded demo data**, not a live ChEMBL/DrugBank mirror.
+- GraphRAG requires Neo4j; CSV fallback applies only to Network visualization.
+- Curated research edges are hand-linked — CURA does not invent SUPPORTS/CONTRADICTS.
+- Literature narrative Q&A remains on the separate **Research Agent** (PubMed document RAG).
+- Seeded papers use **real PubMed PMIDs/titles**; graph links around them are curated for the demo.
+
+### Provenance note (say this in demos)
+
+| Piece | Real or demo? |
+|-------|----------------|
+| Paper PMID, title, year, PubMed URL | Real PubMed records |
+| Author names on those papers | Real (subset listed in seed) |
+| `DISCUSSES` / `PROPOSES` / `RELATED_TO` / Method / Limitation edges | Curated demo links |
+| Research notes under `data/research_notes/` | Short curated summaries → `Document` nodes |
+
+---
+
+## 11. Frontend demo script — inputs for every page
+
+Use this section for a full product walkthrough. Match the frontend API base to the backend port.
+
+```bash
+# Backend (example)
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8002
+
+# Frontend
+cd frontend && NEXT_PUBLIC_API_BASE=http://127.0.0.1:8002 npm run dev
+```
+
+Open **http://localhost:3000**. Suggested order: Dashboard → Analysis → Structure → Similar Drugs → Side Effects → **Drug Network (GraphRAG highlight)** → Research Agent → optional Protein / Discovery.
+
+### 11.1 Dashboard (`/`)
+
+| Input | Value |
+|-------|--------|
+| — | No form inputs |
+
+**What happens:** Landing page with tool cards and pipeline status. Entry point to each feature.
+
+### 11.2 Molecule Analysis (`/analysis`)
+
+| Field | Demo input |
+|-------|------------|
+| SMILES | `CC(=O)OC1=CC=CC=C1C(=O)O` (aspirin; default) |
+
+**Alternate (Erlotinib):**  
+`COCCOC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC=CC(=C3)C#C)OCCOC`
+
+**What happens:** RDKit-style property profiling (MW, LogP, TPSA, QED, Lipinski, ADMET heuristics). **Neo4j not used.**
+
+### 11.3 3D Structure (`/structure`)
+
+| Field | Demo input |
+|-------|------------|
+| UniProt / gene | `P00533` or `EGFR` (default `P00533`) |
+
+**What happens:** Next.js proxies fetch a public **AlphaFold DB** model + UniProt metadata; browser renders ribbon/surface. Separate from the structure used inside the generation pipeline. **Neo4j not used.**
+
+### 11.4 Similar Drugs (`/similar-drugs`)
+
+| Field | Demo input |
+|-------|------------|
+| SMILES | `CC(=O)OC1=CC=CC=C1C(=O)O` |
+
+**What happens:** Morgan fingerprint / Tanimoto search against a local drug library; ranked structural analogs. **Not** Neo4j `SIMILAR_TO` (that lives on Network / GraphRAG for named seeded drugs).
+
+### 11.5 Side Effects (`/side-effects`)
+
+| Field | Demo input |
+|-------|------------|
+| SMILES | `CC(=O)OC1=CC=CC=C1C(=O)O` |
+
+**What happens:** SIDER-style ADR prediction from chemical fingerprints. Separate runtime from Neo4j `HAS_SIDE_EFFECT` edges used in GraphRAG.
+
+### 11.6 Drug Network + GraphRAG (`/network`) — primary Neo4j demo
+
+**Visualization filters**
+
+| Field | Demo input |
+|-------|------------|
+| Drug | `Erlotinib` |
+| Disease | `Lung cancer` |
+| Action | Click refresh |
+
+**What happens:** Neo4j neighborhood → NetworkX/PyVis HTML (drugs, proteins, diseases, side effects, similar drugs). CSV fallback if Neo4j is down (GraphRAG still needs Neo4j).
+
+**GraphRAG — research discovery (hackathon track)**
+
+Paste or click the first suggested chip:
+
+> Which approaches target EGFR, what limitations are recorded, and which papers discuss related drugs?
+
+**Expect:** `intent=research_discovery`, `evidence=grounded` (or `paths_only` without Groq), paths like `Paper -PROPOSES-> Method -HAS_LIMITATION-> …`, authors list, PubMed links.
+
+**GraphRAG — classic drug multi-hop**
+
+> Which drugs in the available graph target EGFR, what disease relationships are recorded for those targets, and what side effects are associated with the relevant drugs?
+
+**Expect:** `intent=multi_hop_research`, `BINDS` / `TREATS` / `HAS_SIDE_EFFECT` paths.
+
+**Other suggested chips**
+
+| Chip theme | Expect roughly |
+|------------|----------------|
+| Share a target with Erlotinib | `shared_targets` |
+| Drugs treat lung cancer | `treats_disease` |
+| Side effects of Metformin | `side_effects` |
+| Drugs similar to Gefitinib | `similar_drugs` |
+| Papers discuss EGFR | `research_discovery` or `papers_for_entity` |
+
+**Evidence only:** uses drug/disease filters (and/or structured search) to list Neo4j paths without LLM synthesis.
+
+### 11.7 Protein Target Drug Generation (`/protein`)
+
+| Field | Demo input |
+|-------|------------|
+| Gene | `EGFR` |
+| Num molecules | `10` (default) |
+| Sample | `500` (default) |
+
+**Alternates:** `BRAF`, `CDK4`, `KRAS`.
+
+**What happens:** UniProt lookup → full CuraPipeline (structure → pocket → REINVENT → filters → ranking). Can be slow; DeepPurpose/Vina may be degraded if those deps are missing. **Neo4j not used.**
+
+### 11.8 Seed Candidate Drug Generation (`/discovery`)
+
+| Field | Demo input |
+|-------|------------|
+| Target | `EGFR` |
+| Seed SMILES | `CC(=O)Nc1ccc(O)cc1` (default) |
+
+**What happens:** Same core generation funnel with a required seed SMILES; optional browser Groq blurbs on candidate cards. **Neo4j not used.**
+
+### 11.9 Research Agent (`/research`) — PubMed document RAG
+
+**Mode 1 — natural language**
+
+| Field | Demo input |
+|-------|------------|
+| Question | `What is the role of EGFR tyrosine kinase inhibitors in non-small-cell lung cancer?` |
+
+**Mode 2 — SMILES + target**
+
+| Field | Demo input |
+|-------|------------|
+| SMILES | `CC(=O)OC1=CC=CC=C1C(=O)O` |
+| Target | `COX-2` |
+| Question | (optional / empty) |
+
+**What happens:** Streams a literature brief (PubMed fetch → chunk/embed → retrieve → Groq). **Not** the seeded Neo4j multi-hop graph. For Paper → Method → Limitation structure, use **Drug Network** GraphRAG.
+
+### 11.10 ~8-minute judge path
+
+1. Dashboard — product tour.  
+2. Molecule Analysis — aspirin SMILES.  
+3. 3D Structure — `EGFR` / `P00533`.  
+4. Similar Drugs + Side Effects — same aspirin SMILES.  
+5. **Drug Network** — Erlotinib + Lung cancer viz → `research_discovery` chip → `multi_hop_research` chip.  
+6. Research Agent — one PubMed question (contrast with GraphRAG).  
+7. Optional: Protein / Discovery if generation models are loaded.

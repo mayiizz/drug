@@ -44,6 +44,11 @@ class KnowledgeGraphEngine:
         else:
             logger.info("[KG] Using Neo4j as knowledge-graph source.")
 
+    def _ensure_csv_loaded(self) -> None:
+        if self.data.empty and _CSV_PATH.exists():
+            self.data = pd.read_csv(_CSV_PATH)
+            logger.info("[KG] Loaded CSV fallback (%d rows).", len(self.data))
+
     def build_graph(self, drug: str | None = None, disease: str | None = None):
         self.graph = nx.Graph()
         if self._use_neo4j:
@@ -51,12 +56,31 @@ class KnowledgeGraphEngine:
                 return self._build_from_neo4j(drug, disease)
             except Neo4jNotConfiguredError:
                 logger.warning("[KG] Neo4j became unavailable — falling back to CSV.")
-                if self.data.empty and _CSV_PATH.exists():
-                    self.data = pd.read_csv(_CSV_PATH)
+                self._ensure_csv_loaded()
                 return self._build_from_csv(drug, disease)
             except Exception as exc:
-                logger.exception("[KG] Neo4j query failed: %s", exc)
-                raise
+                # DNS / Aura pause / transient network: keep Network usable via CSV.
+                # GraphRAG still requires a live Neo4j connection separately.
+                logger.warning(
+                    "[KG] Neo4j query failed (%s) — falling back to CSV for visualization.",
+                    exc,
+                )
+                try:
+                    from models.graph.neo4j_client import close_driver
+
+                    close_driver()  # drop stale pool so the next request can reconnect
+                except Exception:
+                    pass
+                self._ensure_csv_loaded()
+                graph = self._build_from_csv(drug, disease)
+                if graph is not None:
+                    return graph
+                # No CSV match either — surface a clear error
+                raise RuntimeError(
+                    f"Neo4j unreachable ({exc}) and no CSV neighborhood matched "
+                    f"drug={drug!r} disease={disease!r}. Check Aura is running and "
+                    f"DNS can resolve NEO4J_URI, or use a seeded drug/disease name."
+                ) from exc
         return self._build_from_csv(drug, disease)
 
     def _build_from_neo4j(self, drug: str | None, disease: str | None):

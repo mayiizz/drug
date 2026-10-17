@@ -392,12 +392,24 @@ def get_network(data: dict):
 
         if isinstance(e, Neo4jNotConfiguredError):
             raise HTTPException(status_code=503, detail=str(e)) from e
-        # Neo4j configured but unreachable / query error
         msg = str(e)
-        if "Neo4j" in msg or "neo4j" in msg.lower() or "Unable to retrieve" in msg:
+        # DNS / Aura paused / both Neo4j+CSV failed
+        if (
+            "Cannot resolve address" in msg
+            or "Neo4j" in msg
+            or "neo4j" in msg.lower()
+            or "Unable to retrieve" in msg
+            or "unreachable" in msg.lower()
+        ):
             raise HTTPException(
                 status_code=503,
-                detail=f"Neo4j graph unavailable: {msg}. Check Aura credentials and run scripts/seed_neo4j.py.",
+                detail=(
+                    f"Knowledge graph unavailable: {msg}. "
+                    "If Aura DNS fails, check the instance is running at console.neo4j.io "
+                    "and your network can resolve NEO4J_URI. "
+                    "Network visualization falls back to CSV when Neo4j is briefly down; "
+                    "GraphRAG still requires a live Neo4j connection."
+                ),
             ) from e
         raise HTTPException(status_code=500, detail=f"Graph could not be generated: {msg}") from e
     if os.path.exists("drug_knowledge_graph.html"):

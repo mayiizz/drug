@@ -71,6 +71,7 @@ def verify_connectivity() -> bool:
         return True
     except Exception as exc:
         logger.warning("[Neo4j] Connectivity check failed: %s", exc)
+        close_driver()  # clear bad pool after DNS / auth / pause failures
         return False
 
 

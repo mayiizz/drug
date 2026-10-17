@@ -112,12 +112,20 @@ export default function ResearchPage() {
           >
             Literature Research Agent
           </h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-light)", fontWeight: 300 }}>
+            Open PubMed document RAG for broad literature surveys. For seeded multi-hop
+            questions (Paper → Method → Limitation → related papers), use{" "}
+            <a href="/network" className="underline font-medium" style={{ color: "var(--blue-deep)" }}>
+              Drug Network GraphRAG
+            </a>
+            .
+          </p>
         </div>
       </div>
 
       <Card
         title="Research Query"
-        subtitle="Natural language question — or SMILES + target (e.g. aspirin + COX-2). PubChem resolves names from SMILES."
+        subtitle="Natural language question — or SMILES + target (e.g. aspirin + COX-2). PubChem resolves names from SMILES. Multi-hop graph structure lives on Network, not here."
       >
         <div className="space-y-4">
           <div>

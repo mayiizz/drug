@@ -51,6 +51,8 @@ generated_molecules.sdf
 data/*
 !data/*.csv
 !data/*.json
+!data/research_notes/
+!data/research_notes/**/*.md
 
 # Temp / debug files
 out.txt

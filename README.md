@@ -98,7 +98,8 @@ The seed script is idempotent (`MERGE` + uniqueness constraints). It loads:
 
 - `data/drug_protein_disease.csv`
 - `data/sider_side_effects.csv`
-- demo `SIMILAR_TO` edges between related drugs
+- curated + RDKit `SIMILAR_TO` edges
+- curated research subgraph: `Paper` / `Author` / `Concept` / `Method` / `Limitation` / `Document` (`data/research_notes/`) with real PubMed IDs (demo provenance only — not SUPPORTS/CONTRADICTS)
 
 ### 4. Run the app
 
@@ -109,23 +110,29 @@ cd frontend && NEXT_PUBLIC_API_BASE=http://127.0.0.1:8000 npm run dev
 ```
 
 - Network + GraphRAG UI: http://localhost:3000/network
-- API: `POST /graphrag` with `{ "query": "..." }` — docs at `/docs`
+- Research Agent (PubMed document RAG): http://localhost:3000/research
+- API: `POST /graphrag` `{ "query": "..." }` and `POST /graph/search` — docs at `/docs`
 
-If Neo4j env vars are missing, `/network` falls back to the local CSV (demo should use Aura). `/graphrag` requires Neo4j.
+If Neo4j env vars are missing, `/network` falls back to the local CSV (demo should use Aura). `/graphrag` and `/graph/search` require Neo4j.
 
-### 5. Demo script
+### 5. Demo script (~60s — research discovery)
 
-1. **Aura Explore / Browser** — show `Drug`, `Protein`, `Disease` nodes and `BINDS` / `ASSOCIATED_WITH` / `TREATS` relationships.
-2. **CURA `/network`** — load e.g. drug `Erlotinib`, disease `Lung cancer` and show the pyvis subgraph.
-3. **GraphRAG** — ask: *Which drugs share a target with Erlotinib and what diseases are linked?* and show answer + retrieved paths.
+1. Open **http://localhost:3000/network** (note the curated research-graph banner).
+2. Click the first suggested chip (or paste):
 
-Example Cypher (in Aura):
+   > Which approaches target EGFR, what limitations are recorded, and which papers discuss related drugs?
 
-```cypher
-MATCH (d:Drug {name: "Erlotinib"})-[:BINDS]->(p:Protein)<-[:BINDS]-(other:Drug)
-MATCH (other)-[:BINDS]->(p)-[:ASSOCIATED_WITH]->(dis:Disease)
-RETURN d.name, p.name, other.name, dis.name
-LIMIT 25
+3. Confirm `intent=research_discovery`, paths like `Paper -PROPOSES-> Method -HAS_LIMITATION-> …`, authors, and PubMed links.
+4. Optional second chip for classic drug multi-hop (`intent=multi_hop_research`).
+5. For open PubMed surveys (not the seeded graph), use **Research Agent** at `/research`.
+
+### 6. Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v
 ```
+
+Deep dive: [`docs/CURA_PIPELINE_AND_NEO4J.md`](docs/CURA_PIPELINE_AND_NEO4J.md).
 
 
