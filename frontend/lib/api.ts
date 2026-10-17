@@ -1,13 +1,37 @@
 
 import axios from 'axios';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
+/**
+ * Resolve the FastAPI base URL.
+ *
+ * - Server-side (RSC / route handlers): prefer Vercel service binding `API_URL`
+ *   (internal URL to the `api` service — paths are root-relative, e.g. `/graphrag`).
+ * - Browser / public: `NEXT_PUBLIC_API_BASE`, or same-origin `/svc/api` in production
+ *   (top-level rewrite → `api` service; avoids clashing with Next.js `/api/*` proxies
+ *   and with frontend pages like `/network` and `/research`).
+ * - Local uvicorn: default `http://127.0.0.1:8000` (override with NEXT_PUBLIC_API_BASE).
+ */
+export function getApiBase(): string {
+    if (typeof window === "undefined") {
+        const bound = process.env.API_URL?.replace(/\/$/, "");
+        if (bound) return bound;
+    }
+    const explicit = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "");
+    if (explicit) return explicit;
+    if (process.env.NODE_ENV === "production") return "/svc/api";
+    return "http://127.0.0.1:8000";
+}
 
 const api = axios.create({
-    baseURL: API_BASE,
     headers: {
         'Content-Type': 'application/json',
     },
+});
+
+// Resolve base URL per request (binding on server, /svc/api or local in browser).
+api.interceptors.request.use((config) => {
+    config.baseURL = getApiBase();
+    return config;
 });
 
 // ── Global error interceptor ──────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import {
   Activity, Zap, Info, Microscope, Download
 } from "lucide-react";
 import { formatKd } from "@/lib/format";
+import { getApiBase } from "@/lib/api";
 
 // ── API ───────────────────────────────────────────────────────────────────────
 async function runDeNovo(
@@ -16,8 +17,7 @@ async function runDeNovo(
   num_molecules: number,
   sample_size: number
 ): Promise<any> {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
-  const res = await fetch(`${apiBase}/denovo`, {
+  const res = await fetch(`${getApiBase()}/denovo`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ gene_name, num_molecules, sample_size }),

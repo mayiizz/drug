@@ -1,0 +1,3 @@
+[tool.vercel]
+# FastAPI ASGI app for the `api` Vercel service (repo root = service root).
+entrypoint = "backend.main:app"

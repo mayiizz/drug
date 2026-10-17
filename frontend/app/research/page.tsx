@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Card from "@/components/Card";
 import ResearchBriefPanel from "@/components/ResearchBriefPanel";
+import { getApiBase } from "@/lib/api";
 import { BookOpen, Loader2, Sparkles } from "lucide-react";
 
 const RESEARCH_INPUT_HINT =
@@ -38,8 +39,7 @@ export default function ResearchPage() {
     setChunks([]);
     setStreaming(true);
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
-      const res = await fetch(`${apiBase}/research`, {
+      const res = await fetch(`${getApiBase()}/research`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
